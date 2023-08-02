@@ -3,3 +3,5 @@ dataset-backup/
 examples/
 .DS_Store
 Soft-tissue-Sarcoma/
+dataset_mr/
+metadata.csv
