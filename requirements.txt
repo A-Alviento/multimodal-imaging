@@ -1,0 +1,11 @@
+torch
+torchvision
+matplotlib
+opencv-contrib-python
+imutils
+scikit-learn
+tqdm
+pydicom
+rt_utils
+scikit-image
+pandas
