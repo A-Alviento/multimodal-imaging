@@ -4,6 +4,8 @@ examples/
 .DS_Store
 Soft-tissue-Sarcoma/
 dataset_mr/
+dataset_ct/
+dataset_pt/
 metadata.csv
 UNET/
 models/
