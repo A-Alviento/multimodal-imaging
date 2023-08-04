@@ -9,5 +9,4 @@ dataset_pt/
 dataset_pt_empty_mask_removed/
 metadata.csv
 UNET/
-models/
 misc/
