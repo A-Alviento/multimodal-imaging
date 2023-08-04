@@ -6,6 +6,7 @@ Soft-tissue-Sarcoma/
 dataset_mr/
 dataset_ct/
 dataset_pt/
+dataset_pt_empty_mask_removed/
 metadata.csv
 UNET/
 models/
