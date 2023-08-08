@@ -1,6 +1,7 @@
 # USAGE
-# python train.py
+# The following script is used to train the U-Net model for image segmentation.
 
+# Import necessary libraries and modules.
 from pyimagesearch.dataset import SegmentationDataset
 from pyimagesearch.model import UNet
 from pyimagesearch import config
@@ -16,6 +17,7 @@ import torch
 import time
 import os
 
+# List all image paths for training, validation, and testing.
 trainImages = sorted(list(paths.list_images(config.IMAGE_DATASET_PATH)))
 trainMasks = sorted(list(paths.list_images(config.MASK_DATASET_PATH)))
 valImages = sorted(list(paths.list_images(config.VAL_IMAGE_DATASET_PATH)))
@@ -23,103 +25,107 @@ valMasks = sorted(list(paths.list_images(config.VAL_MASK_DATASET_PATH)))
 testImages = sorted(list(paths.list_images(config.TEST_IMAGE_DATASET_PATH)))
 testMasks = sorted(list(paths.list_images(config.TEST_MASK_DATASET_PATH)))
 
-# write the testing image paths to disk so that we can use then
-# when evaluating/testing our model
+# Save test image paths for future evaluation purposes.
 print("[INFO] saving testing image paths...")
 f = open(config.TEST_PATHS, "w")
 f.write("\n".join(testImages))
 f.close()
 
+# Define data transformations:
+# 1. Convert to a PIL Image.
+# 2. Resize to the desired input dimensions.
+# 3. Convert to a Tensor for PyTorch processing.
+transforms = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.Resize((config.INPUT_IMAGE_HEIGHT, config.INPUT_IMAGE_WIDTH)),
+    transforms.ToTensor()
+])
 
-# define transformations
-transforms = transforms.Compose([transforms.ToPILImage(), transforms.Resize((config.INPUT_IMAGE_HEIGHT, config.INPUT_IMAGE_WIDTH)), transforms.ToTensor()])
-
-# create the train and test datasets
+# Create datasets for training and validation using the paths and transformations.
 trainDS = SegmentationDataset(imagePaths=trainImages, maskPaths=trainMasks, transforms=transforms)
 testDS = SegmentationDataset(imagePaths=valImages, maskPaths=valMasks, transforms=transforms)
 
 print(f"[INFO] found {len(trainDS)} examples in training set...")
 print(f"[INFO] found {len(testDS)} examples in testing set...")
 
-# create the training and test data loaders
+# Create data loaders for efficient batching during training.
 trainLoader = DataLoader(trainDS, shuffle=True, batch_size=config.BATCH_SIZE, pin_memory=config.PIN_MEMORY, num_workers=0)
 testLoader = DataLoader(testDS, shuffle=False, batch_size=config.BATCH_SIZE, pin_memory=config.PIN_MEMORY, num_workers=0)
 
-# initialise our UNet model
+# Initialize the U-Net model and send it to the appropriate computing device (CPU or GPU).
 unet = UNet().to(config.DEVICE)
 
-# initialise the loss function and Adam optimiser
+# Define the loss function and optimizer for training.
 lossFunc = BCEWithLogitsLoss()
 opt = Adam(unet.parameters(), lr=config.INIT_LR)
 
-# calculate steps per epoch for training and test set
+# Calculate the number of steps (batches) for each epoch.
 trainSteps = len(trainDS) // config.BATCH_SIZE
 testSteps = len(testDS) // config.BATCH_SIZE
 
-# initialise a dictionary to store the training history
+# Dictionary to keep track of training and validation losses for each epoch.
 H = {"train_loss": [], "test_loss": []}
 
-# loop over the epochs
+# Start the training process.
 print ("[INFO] training the network...")
 startTime = time.time()
-for e in tqdm(range(config.NUM_EPOCHS)):
-    # set the model in training mode
+for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar in console
+    # Model is set to training mode. This affects certain layers like dropout.
     unet.train()
 
-    # initialise the total training and validation loss
+    # Variables to accumulate losses over batches.
     totalTrainLoss = 0
     totalTestLoss = 0
 
-    # loop over the training set
+    # Loop through each batch in the training dataset.
     for (i, (x, y)) in enumerate(trainLoader):
-        # send the input to device
+        # Move data to the computing device.
         (x, y) = (x.to(config.DEVICE), y.to(config.DEVICE))
 
-        # perform a forward pass and calculate the training loss
+        # Make predictions, compute loss, and backpropagate errors.
         pred = unet(x)
         loss = lossFunc(pred, y)
-
-        # first, zero out any previously accumulated gradients, then
-        # perform backpropagation, and then update model parameters
+        # opt.zero_grad(): Before performing backpropagation, you need to zero out any previously computed gradients. Why? Because PyTorch accumulates gradients. That means, whenever you call .backward(), the gradients are added to any previously existing gradients rather than replacing them. If you don't zero them out, gradients from previous iterations will interfere with the current iteration, leading to incorrect updates.
         opt.zero_grad()
+        # loss.backward(): This command computes the gradient of the loss with respect to each parameter of the model (i.e., it performs backpropagation). Essentially, it determines how much each parameter (weight/bias in the neural network) contributed to the error in the output.
         loss.backward()
+        # opt.step(): This updates the model's parameters (weights and biases) using the computed gradients. The specific way the parameters are updated depends on the optimization algorithm. In the provided code, the optimizer is Adam. So, opt.step() will perform an Adam optimization step, adjusting the weights to reduce the error based on the gradients.
         opt.step()
 
-        # add the loss to the total training loss so far 
+        # Accumulate batch loss.
         totalTrainLoss += loss
 
-    # switch off autograd
+    # Evaluate model performance on validation dataset.
     with torch.no_grad():
-        # set the model in evaluation mode
+        # Model is set to evaluation mode.
         unet.eval()
 
-        # loop over the validation set
+        # Loop through batches in the validation dataset.
         for (x, y) in testLoader:
-            # send the input to device
+            # Move data to the computing device.
             (x, y) = (x.to(config.DEVICE), y.to(config.DEVICE))
 
-            # make the predictions and calculate the validation loss
+            # Make predictions and compute loss.
             pred = unet(x)
             totalTestLoss += lossFunc(pred, y)
         
-    # calculate the average training and validation loss
+    # Calculate average losses for this epoch.
     avgTrainLoss = totalTrainLoss / trainSteps
     avgTestLoss = totalTestLoss / testSteps
 
-    # update the training history
+    # Store epoch losses for later visualization.
     H["train_loss"].append(avgTrainLoss.cpu().detach().numpy())
     H["test_loss"].append(avgTestLoss.cpu().detach().numpy())
 
-    # print the model training and validation information
+    # Print epoch statistics.
     print("[INFO] EPOCH: {}/{}".format(e+1, config.NUM_EPOCHS))
     print("Train loss: {:.6f}, Test loss: {:.4f}".format(avgTrainLoss, avgTestLoss))
 
-    # display the total time needed to train the model
+    # Display the total training time.
     endTime = time.time()
     print("[INFO] total time taken to train the model: {:.2f} seconds".format(endTime - startTime))
 
-
-# plot the training loss
+# Plot the training and validation losses.
 plt.style.use("ggplot")
 plt.figure()
 plt.plot(H["train_loss"], label="train_loss")
@@ -130,5 +136,5 @@ plt.ylabel("Loss")
 plt.legend(loc="lower left")
 plt.savefig(config.PLOT_PATH)
 
-# serialize the model to disk
+# Save the trained model to disk for future use.
 torch.save(unet, config.MODEL_PATH)
