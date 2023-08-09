@@ -1,13 +1,9 @@
 import torch
 import config
 
-def dice_score(pred, target, eps=1e-7):
-    """
-    Compute the Dice coefficient given predicted and target masks.
-    """
-    # Convert predictions to binary using a threshold of 0.5
-    pred = torch.sigmoid(pred) >= config.THRESHOLD
-    intersection = (pred & target).float().sum()
-    union = pred.float().sum() + target.float().sum()
-    dice = (2 * intersection) / (union + eps)
-    return dice.item()
+def dice_score(pred, target, threshold=config.THRESHOLD, eps=1e-6):
+    pred = (pred > threshold).float() # Threshold the prediction
+    target = target.float() # Ensure that target is a float tensor
+    intersection = (pred * target).sum()
+    union = pred.sum() + target.sum()
+    return 2.0 * intersection / (union + eps) # Add a small epsilon to avoid division by zero
