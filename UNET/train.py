@@ -3,7 +3,7 @@
 
 # Import necessary libraries and modules.
 from pyimagesearch.dataset import SegmentationDataset
-from pyimagesearch.eval import *
+from pyimagesearch.eval import dice_score
 from pyimagesearch.model import UNet
 from pyimagesearch import config
 from torch.nn import BCEWithLogitsLoss
@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import torch
 import time
 import os
+import pickle
 
 # List all image paths for training, validation, and testing.
 trainImages = sorted(list(paths.list_images(config.IMAGE_DATASET_PATH)))
@@ -65,11 +66,13 @@ trainSteps = len(trainDS) // config.BATCH_SIZE
 testSteps = len(testDS) // config.BATCH_SIZE
 
 # Dictionary to keep track of training and validation losses for each epoch.
-H = {"train_loss": [], "test_loss": []}
+H = {"train_loss": [], "test_loss": [], "test_dice": []}
 
 # Start the training process.
 print ("[INFO] training the network...")
 startTime = time.time()
+
+# loop over the epochs
 for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar in console
     # Model is set to training mode. This affects certain layers like dropout.
     unet.train()
@@ -96,6 +99,7 @@ for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar i
         # Accumulate batch loss.
         totalTrainLoss += loss
 
+    totalDiceScore = 0
     # Evaluate model performance on validation dataset.
     with torch.no_grad():
         # Model is set to evaluation mode.
@@ -109,33 +113,40 @@ for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar i
             # Make predictions and compute loss.
             pred = unet(x)
             totalTestLoss += lossFunc(pred, y)
+            totalDiceScore += dice_score(pred, y)
         
     # Calculate average losses for this epoch.
     avgTrainLoss = totalTrainLoss / trainSteps
     avgTestLoss = totalTestLoss / testSteps
+    avgDiceScore = totalDiceScore / testSteps
 
     # Store epoch losses for later visualization.
     H["train_loss"].append(avgTrainLoss.cpu().detach().numpy())
     H["test_loss"].append(avgTestLoss.cpu().detach().numpy())
+    H["test_dice"].append(avgDiceScore)
 
-    # Print epoch statistics.
+    # print the model training, validation information and dice score
     print("[INFO] EPOCH: {}/{}".format(e+1, config.NUM_EPOCHS))
-    print("Train loss: {:.6f}, Test loss: {:.4f}".format(avgTrainLoss, avgTestLoss))
+    print("Train loss: {:.6f}, Test loss: {:.4f}, Test Dice Score: {:.4f}".format(avgTrainLoss, avgTestLoss, avgDiceScore))
 
     # Display the total training time.
     endTime = time.time()
     print("[INFO] total time taken to train the model: {:.2f} seconds".format(endTime - startTime))
 
-# Plot the training and validation losses.
-plt.style.use("ggplot")
-plt.figure()
-plt.plot(H["train_loss"], label="train_loss")
-plt.plot(H["test_loss"], label="test_loss")
-plt.title("Training Loss on Dataset")
-plt.xlabel("Epoch #")
-plt.ylabel("Loss")
-plt.legend(loc="lower left")
-plt.savefig(config.PLOT_PATH)
+# # Plot the training and validation losses.
+# plt.style.use("ggplot")
+# plt.figure()
+# plt.plot(H["train_loss"], label="train_loss")
+# plt.plot(H["test_loss"], label="test_loss")
+# plt.title("Training Loss on Dataset")
+# plt.xlabel("Epoch #")
+# plt.ylabel("Loss")
+# plt.legend(loc="lower left")
+# plt.savefig(config.PLOT_PATH)
+
+# After the training loop
+with open(config.HISTORY_PATH, 'wb') as file:
+    pickle.dump(H, file)
 
 # Save the trained model to disk for future use.
 torch.save(unet, config.MODEL_PATH)
