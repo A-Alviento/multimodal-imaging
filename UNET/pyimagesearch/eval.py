@@ -1,3 +1,5 @@
+import torch
+
 def dice_score(pred, target, eps=1e-7):
     """
     Compute the Dice coefficient given predicted and target masks.
