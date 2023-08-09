@@ -74,6 +74,7 @@ class Decoder(Module):
         # They essentially increase the height and width of the image.
         # arguments: input channel, output channel, kernel size, kernel stride
         # stride of 2 means the spatial dimentsions will double after the operation
+        self.channels = channels
         self.upconvs = ModuleList(
             [ConvTranspose2d(channels[i], channels[i + 1], 2, 2) for i in range(len(channels) - 1)])
         
