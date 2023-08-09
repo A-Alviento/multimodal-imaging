@@ -49,4 +49,5 @@ BASE_OUTPUT = "output"
 # define the path to the output serialised model, model training plot, and testing image paths
 MODEL_PATH = os.path.join(BASE_OUTPUT, "unet_mr.pth")
 # PLOT_PATH = os.path.sep.join([BASE_OUTPUT, "plot.png"])
+HISTORY_PATH = os.path.sep.join([BASE_OUTPUT], "history.pkl")
 TEST_PATHS = os.path.sep.join([BASE_OUTPUT, "test_paths.txt"])
