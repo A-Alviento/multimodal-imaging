@@ -32,7 +32,7 @@ NUM_LEVELS = 3
 
 # initialize the initial learning rate, number of epochs to train for, and batch size
 INIT_LR = 0.001
-NUM_EPOCHS = 40
+NUM_EPOCHS = 600
 BATCH_SIZE = 128
 PATIENCE = 50
 
