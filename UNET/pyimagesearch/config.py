@@ -34,6 +34,7 @@ NUM_LEVELS = 3
 INIT_LR = 0.001
 NUM_EPOCHS = 40
 BATCH_SIZE = 128
+PATIENCE = 50
 
 # define the input image dimensions
 INPUT_IMAGE_WIDTH = 128
