@@ -70,7 +70,9 @@ H = {"train_loss": [], "test_loss": [], "test_dice": []}
 
 # Start the training process.
 print ("[INFO] training the network...")
-startTime = time.time()
+startTime = time.time
+
+best_dice_score = 0
 
 # loop over the epochs
 for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar in console
@@ -129,6 +131,14 @@ for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar i
     print("[INFO] EPOCH: {}/{}".format(e+1, config.NUM_EPOCHS))
     print("Train loss: {:.6f}, Test loss: {:.4f}, Test Dice Score: {:.4f}".format(avgTrainLoss, avgTestLoss, avgDiceScore))
 
+    # Save the latest model weights after every epoch.
+    torch.save(unet.state_dict(), config.LAST_MODEL_PATHMODEL_PATH)
+
+    # if this epoch yields the best dice score, save these model weights
+    if avgDiceScore > best_dice_score:
+        best_dice_score = avgDiceScore
+    torch.save(unet.state_dict(), config.BEST_MODEL_PATH)
+
     # Display the total training time.
     endTime = time.time()
     print("[INFO] total time taken to train the model: {:.2f} seconds".format(endTime - startTime))
@@ -147,6 +157,3 @@ for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar i
 # After the training loop
 with open(config.HISTORY_PATH, 'wb') as file:
     pickle.dump(H, file)
-
-# Save the trained model to disk for future use.
-torch.save(unet, config.MODEL_PATH)
