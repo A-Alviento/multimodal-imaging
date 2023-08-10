@@ -74,6 +74,9 @@ startTime = time.time
 
 best_dice_score = 0
 
+# variable to keep track of the number of epochs without improvement in Dice score
+epochs_without_improvement = 0
+
 # loop over the epochs
 for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar in console
     # Model is set to training mode. This affects certain layers like dropout.
@@ -137,11 +140,19 @@ for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar i
     # if this epoch yields the best dice score, save these model weights
     if avgDiceScore > best_dice_score:
         best_dice_score = avgDiceScore
-    torch.save(unet.state_dict(), config.BEST_MODEL_PATH)
+        torch.save(unet.state_dict(), config.BEST_MODEL_PATH)
+        epochs_without_improvement = 0 # reset counter
+    else:
+        epochs_without_improvement += 1
 
     # Display the total training time.
     endTime = time.time()
     print("[INFO] total time taken to train the model: {:.2f} seconds".format(endTime - startTime))
+
+    # check for early stopping
+    if epochs_without_improvement == config.PATIENCE:
+        print("[INFO] Early stopping: No improvement in Dice score for the last {} epochs".format(config.PATIENCE))
+        break
 
 # # Plot the training and validation losses.
 # plt.style.use("ggplot")
