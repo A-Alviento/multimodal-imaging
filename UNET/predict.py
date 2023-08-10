@@ -2,6 +2,7 @@
 # python predict.py
 # import the necessary packages
 from pyimagesearch import config
+from pyimagesearch.model import UNet
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
