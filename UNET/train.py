@@ -135,7 +135,7 @@ for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar i
     print("Train loss: {:.6f}, Test loss: {:.4f}, Test Dice Score: {:.4f}".format(avgTrainLoss, avgTestLoss, avgDiceScore))
 
     # Save the latest model weights after every epoch.
-    torch.save(unet.state_dict(), config.LAST_MODEL_PATHMODEL_PATH)
+    torch.save(unet.state_dict(), config.LAST_MODEL_PATH)
 
     # if this epoch yields the best dice score, save these model weights
     if avgDiceScore > best_dice_score:
