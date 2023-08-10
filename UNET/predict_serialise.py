@@ -7,6 +7,7 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from pyimagesearch import config
+from pyimagesearch.model import UNet
 
 
 # make predictions on images in imagePath and save them to outputDirectory
