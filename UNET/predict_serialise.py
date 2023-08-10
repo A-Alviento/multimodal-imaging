@@ -43,7 +43,8 @@ def make_predictions(model, imagePath, outputDirectory):
 
 
 # load our model from disk and flash it to the current device
-unet = torch.load(config.BEST_MODEL_PATH).to(config.DEVICE)
+unet = UNet().to(config.DEVICE)
+unet.load_state_dict(torch.load(config.BEST_MODEL_PATH, map_location=config.DEVICE))
 
 inputDirectory = config.TEST_IMAGE_DATASET_PATH
 outputDirectory = config.TEST_PREDICT_DATASET_PATH
