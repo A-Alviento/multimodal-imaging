@@ -74,8 +74,8 @@ imagePaths = np.random.choice(imagePaths, size=10) # 10 random images
 
 # load our model from disk and flash it to the current device
 print("[INFO] load up model...")
-unet = UNet()
-unet = torch.load(config.BEST_MODEL_PATH).to(config.DEVICE)
+unet = UNet().to(config.DEVICE)
+unet.load_state_dict(torch.load(config.BEST_MODEL_PATH, map_location=config.DEVICE))
 # iterate over the randomly selected test image paths
 for path in imagePaths:
 	# make predictions and visualize the results
