@@ -70,7 +70,7 @@ H = {"train_loss": [], "test_loss": [], "test_dice": []}
 
 # Start the training process.
 print ("[INFO] training the network...")
-startTime = time.time
+startTime = time.time()
 
 best_dice_score = 0
 
