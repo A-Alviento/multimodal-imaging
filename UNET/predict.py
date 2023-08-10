@@ -74,6 +74,7 @@ imagePaths = np.random.choice(imagePaths, size=10) # 10 random images
 
 # load our model from disk and flash it to the current device
 print("[INFO] load up model...")
+unet = UNet()
 unet = torch.load(config.BEST_MODEL_PATH).to(config.DEVICE)
 # iterate over the randomly selected test image paths
 for path in imagePaths:
