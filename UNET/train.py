@@ -51,8 +51,8 @@ print(f"[INFO] found {len(trainDS)} examples in training set...")
 print(f"[INFO] found {len(testDS)} examples in testing set...")
 
 # Create data loaders for efficient batching during training.
-trainLoader = DataLoader(trainDS, shuffle=True, batch_size=config.BATCH_SIZE, pin_memory=config.PIN_MEMORY, num_workers=0)
-testLoader = DataLoader(testDS, shuffle=False, batch_size=config.BATCH_SIZE, pin_memory=config.PIN_MEMORY, num_workers=0)
+trainLoader = DataLoader(trainDS, shuffle=True, batch_size=config.BATCH_SIZE, pin_memory=config.PIN_MEMORY, num_workers=os.cpu_count())
+testLoader = DataLoader(testDS, shuffle=False, batch_size=config.BATCH_SIZE, pin_memory=config.PIN_MEMORY, num_workers=os.cpu_count())
 
 # Initialize the U-Net model and send it to the appropriate computing device (CPU or GPU).
 unet = UNet().to(config.DEVICE)
