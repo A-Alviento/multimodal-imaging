@@ -145,8 +145,8 @@ for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar i
     else:
         epochs_without_improvement += 1
 
-    print("Num epochs w/o improvement: " + epochs_without_improvement)
-    print("Current best dice score: " + best_dice_score)
+    print("Num epochs w/o improvement: " + str(epochs_without_improvement))
+    print("Current best dice score: " + str(best_dice_score))
 
     # Display the total training time.
     endTime = time.time()
