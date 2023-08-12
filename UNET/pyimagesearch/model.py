@@ -97,6 +97,7 @@ class Decoder(Module):
             # Refine the combined image.
             x = self.dec_blocks[i](x)
         
+        x = self.sigmoid(x)
         # By the end of the Decoder, we've reconstructed an image that's close in detail 
         # to the original, using the compact representation and saved features.
         return x
