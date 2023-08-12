@@ -11,35 +11,23 @@ from torch.nn import ConvTranspose2d, Conv2d, MaxPool2d, Module, ModuleList, ReL
 from torchvision.transforms import CenterCrop
 from torch.nn import functional as F
 import torch
-from torch.nn import BatchNorm2d, Dropout, Sigmoid
 
 # The `Block` class is a fundamental building block of our U-Net model.
 # It contains two sequential convolutional layers, followed by a ReLU activation function.
 # inChannels: Refers to the depth or number of channels in the incoming data. For instance, if you're passing an RGB image, inChannels will be 3. If you're passing the output of another convolutional layer as input, then inChannels would be the number of filters used in that previous layer.
 # outChannels: Refers to the number of filters we want to use in the convolutional layer. This will also be the number of channels in the output produced by this layer. For example, if outChannels is 64, this convolutional layer will use 64 filters and produce an output with a depth of 64 channels.
 class Block(Module):
-    def __init__(self, inChannels, outChannels, dropout_rate=0.5):
+    def __init__(self, inChannels, outChannels):
         super().__init__()
         # Define two convolutional layers. 
         # These layers will extract features and perform spatial transformations.
-        self.conv1 = Conv2d(inChannels, outChannels, 3, padding=1) # 3 refers to the filter size, so in this case, it's a 3x3 filter
-        self.bn1 = BatchNorm2d(outChannels)
+        self.conv1 = Conv2d(inChannels, outChannels, 3) # 3 refers to the filter size, so in this case, it's a 3x3 filter
         self.relu = ReLU()  # Activation function introduces non-linearity.
-        self.conv2 = Conv2d(outChannels, outChannels, 3, padding=1)
-        self.bn2 = BatchNorm2d(outChannels)
-        self.dropout = Dropout(dropout_rate)
+        self.conv2 = Conv2d(outChannels, outChannels, 3)
 
     def forward(self, x):
         # Input 'x' is passed through two convolutions with a ReLU activation in between.
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-
-        x = self.conv2(x)
-        x = self.bn2(x)
-        x = self.relu(x)
-
-        return self.dropout(x)
+        return self.conv2(self.relu(self.conv1(x)))
 
 
 # The Encoder acts like a funnel that progressively "squeezes" the spatial details 
@@ -79,7 +67,7 @@ class Encoder(Module):
 # or upscale it to its original dimensions. While doing so, it uses saved features from 
 # the Encoder to ensure the upscaled image is detailed and accurate.
 class Decoder(Module):
-    def __init__(self, channels=(64, 32, 16), dropout_rate=0.5):
+    def __init__(self, channels=(64, 32, 16)):
         super().__init__()
         
         # We define layers that will upscale or "expand" the compact image.
@@ -93,7 +81,7 @@ class Decoder(Module):
         # After each upsampling, the image might be a bit rough around the edges.
         # These blocks (sets of convolutional layers) will refine the image after each upsampling.
         self.dec_blocks = ModuleList(
-            [Block(channels[i], channels[i + 1], dropout_rate) for i in range(len(channels) - 1)])
+            [Block(channels[i], channels[i + 1]) for i in range(len(channels) - 1)])
 
     def forward(self, x, encFeatures):
         for i in range(len(self.channels) - 1):
@@ -148,8 +136,6 @@ class UNet(Module):
 
         # Desired output size if 'retainDim' is True.
         self.outSize = outSize
-
-        self.final_activation = Sigmoid() if nbClasses == 1 else None
     
     def forward(self, x):
         # Pass the input image through the encoder to get compressed feature maps.
@@ -169,8 +155,5 @@ class UNet(Module):
         # If required, resize the output to the original input dimensions.
         if self.retainDim:
             map = F.interpolate(map, self.outSize)
-        
-        if self.final_activation:
-            return self.final_activation(map)
+            
         return map
-
