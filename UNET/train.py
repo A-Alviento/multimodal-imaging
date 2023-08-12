@@ -4,6 +4,7 @@
 # Import necessary libraries and modules.
 from pyimagesearch.dataset import SegmentationDataset
 from pyimagesearch.eval import dice_score
+from pyimagesearch.eval import dice_loss
 from pyimagesearch.model import UNet
 from pyimagesearch import config
 from torch.nn import BCEWithLogitsLoss
