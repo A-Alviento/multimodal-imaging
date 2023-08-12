@@ -20,7 +20,7 @@ TEST_PREDICT_DATASET_PATH = os.path.join(DATASET_PATH, "test", "predict_unet")
 
 
 # determine the device to use for training and evaluation
-DEVICE = "cuda" if torch.cuda.is_available() else "mps" 
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu" 
 
 # determine if we will be pinning memory during data loading
 PIN_MEMORY = True if DEVICE == "cuda" else False
