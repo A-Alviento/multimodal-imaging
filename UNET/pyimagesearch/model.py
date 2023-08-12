@@ -12,6 +12,7 @@ from torchvision.transforms import CenterCrop
 from torch.nn import functional as F
 import torch
 
+
 # The `Block` class is a fundamental building block of our U-Net model.
 # It contains two sequential convolutional layers, followed by a ReLU activation function.
 # inChannels: Refers to the depth or number of channels in the incoming data. For instance, if you're passing an RGB image, inChannels will be 3. If you're passing the output of another convolutional layer as input, then inChannels would be the number of filters used in that previous layer.
@@ -97,7 +98,6 @@ class Decoder(Module):
             # Refine the combined image.
             x = self.dec_blocks[i](x)
         
-        x = self.sigmoid(x)
         # By the end of the Decoder, we've reconstructed an image that's close in detail 
         # to the original, using the compact representation and saved features.
         return x
@@ -153,6 +153,8 @@ class UNet(Module):
         # This map assigns a class score to each pixel.
         map = self.head(decFeatures)
 
+        # apply sigmoid activation
+        map = torch.sigmoid(map)
         # If required, resize the output to the original input dimensions.
         if self.retainDim:
             map = F.interpolate(map, self.outSize)
