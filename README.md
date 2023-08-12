@@ -1,4 +1,5 @@
 # multimodal-imaging
+**Note: Main branch runs on Apple Silicon M1 while this branch runs on Windows 10 PC. Compatibility settings lies on config.py**
 
 ## Installations
 Download all required packages from `requirements.txt`
