@@ -7,3 +7,7 @@ def dice_score(pred, target, threshold=config.THRESHOLD, eps=1e-6):
     intersection = (pred * target).sum()
     union = pred.sum() + target.sum()
     return 2.0 * intersection / (union + eps) # Add a small epsilon to avoid division by zero
+
+def dice_loss(pred, target, smooth=1.):
+    intersection = (pred * target).sum()
+    return 1 - (2. * intersection + smooth) / (pred.sum() + target.sum() + smooth)
