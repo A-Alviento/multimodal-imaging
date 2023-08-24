@@ -20,11 +20,9 @@ import time
 import os
 import pickle
 
-# List all image paths for training, validation, and testing.
+# List all image paths for training, and testing.
 trainImages = sorted(list(paths.list_images(config.IMAGE_DATASET_PATH)))
 trainMasks = sorted(list(paths.list_images(config.MASK_DATASET_PATH)))
-valImages = sorted(list(paths.list_images(config.VAL_IMAGE_DATASET_PATH)))
-valMasks = sorted(list(paths.list_images(config.VAL_MASK_DATASET_PATH)))
 testImages = sorted(list(paths.list_images(config.TEST_IMAGE_DATASET_PATH)))
 testMasks = sorted(list(paths.list_images(config.TEST_MASK_DATASET_PATH)))
 
@@ -44,9 +42,9 @@ transforms = transforms.Compose([
     transforms.ToTensor()
 ])
 
-# Create datasets for training and validation using the paths and transformations.
+# Create datasets for training and test set using the paths and transformations.
 trainDS = SegmentationDataset(imagePaths=trainImages, maskPaths=trainMasks, transforms=transforms)
-testDS = SegmentationDataset(imagePaths=valImages, maskPaths=valMasks, transforms=transforms)
+testDS = SegmentationDataset(imagePaths=testImages, maskPaths=testMasks, transforms=transforms)
 
 print(f"[INFO] found {len(trainDS)} examples in training set...")
 print(f"[INFO] found {len(testDS)} examples in testing set...")
@@ -66,7 +64,7 @@ opt = Adam(unet.parameters(), lr=config.INIT_LR)
 trainSteps = len(trainDS) // config.BATCH_SIZE
 testSteps = len(testDS) // config.BATCH_SIZE
 
-# Dictionary to keep track of training and validation losses for each epoch.
+# Dictionary to keep track of training and test losses for each epoch.
 H = {"train_loss": [], "test_loss": [], "test_dice": []}
 
 # Start the training process.
@@ -106,12 +104,12 @@ for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar i
         totalTrainLoss += loss
 
     totalDiceScore = 0
-    # Evaluate model performance on validation dataset.
+    # Evaluate model performance on test dataset.
     with torch.no_grad():
         # Model is set to evaluation mode.
         unet.eval()
 
-        # Loop through batches in the validation dataset.
+        # Loop through batches in the test dataset.
         for (x, y) in testLoader:
             # Move data to the computing device.
             (x, y) = (x.to(config.DEVICE), y.to(config.DEVICE))
@@ -131,7 +129,7 @@ for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar i
     H["test_loss"].append(avgTestLoss.cpu().detach().numpy())
     H["test_dice"].append(avgDiceScore)
 
-    # print the model training, validation information and dice score
+    # print the model training, test information and dice score
     print("[INFO] EPOCH: {}/{}".format(e+1, config.NUM_EPOCHS))
     print("Train loss: {:.6f}, Test loss: {:.4f}, Test Dice Score: {:.4f}".format(avgTrainLoss, avgTestLoss, avgDiceScore))
 
@@ -158,7 +156,7 @@ for e in tqdm(range(config.NUM_EPOCHS)): # tqdm is a tool to show progress bar i
         print("[INFO] Early stopping: No improvement in Dice score for the last {} epochs".format(config.PATIENCE))
         break
 
-# # Plot the training and validation losses.
+# # Plot the training and test losses.
 # plt.style.use("ggplot")
 # plt.figure()
 # plt.plot(H["train_loss"], label="train_loss")
