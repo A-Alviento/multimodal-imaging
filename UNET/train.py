@@ -57,7 +57,7 @@ testLoader = DataLoader(testDS, shuffle=False, batch_size=config.BATCH_SIZE, pin
 unet = UNet().to(config.DEVICE)
 
 # Define the loss function and optimizer for training.
-lossFunc = CombinedLoss()
+lossFunc = BCEWithLogitsLoss()
 opt = Adam(unet.parameters(), lr=config.INIT_LR)
 
 # Calculate the number of steps (batches) for each epoch.
