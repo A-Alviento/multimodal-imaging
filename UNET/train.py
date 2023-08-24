@@ -4,6 +4,7 @@
 # Import necessary libraries and modules.
 from pyimagesearch.dataset import SegmentationDataset
 from pyimagesearch.eval import dice_score
+from pyimagesearch.eval import CombinedLoss
 from pyimagesearch.model import UNet
 from pyimagesearch import config
 from torch.nn import BCEWithLogitsLoss
@@ -58,7 +59,7 @@ testLoader = DataLoader(testDS, shuffle=False, batch_size=config.BATCH_SIZE, pin
 unet = UNet().to(config.DEVICE)
 
 # Define the loss function and optimizer for training.
-lossFunc = BCEWithLogitsLoss()
+lossFunc = CombinedLoss()
 opt = Adam(unet.parameters(), lr=config.INIT_LR)
 
 # Calculate the number of steps (batches) for each epoch.
