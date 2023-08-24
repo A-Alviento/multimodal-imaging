@@ -24,7 +24,7 @@ def make_predictions(model, imagePath, outputDirectory):
         
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # swap its color channels
         image = image.astype("float32") / 255.0 # cast it to float data type and scale its pixel values
-        image = cv2.resize(image, (128, 128)) # resize the image
+        image = cv2.resize(image, (config.INPUT_IMAGE_HEIGHT, config.INPUT_IMAGE_WIDTH)) # resize the image
 
         filename = os.path.basename(imagePath) # find the filename
         filename_no_ext = os.path.splitext(filename)[0] # find the filename without extension

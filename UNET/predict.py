@@ -36,7 +36,7 @@ def make_predictions(model, imagePath):
 		image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 		image = image.astype("float32") / 255.0
 		# resize the image and make a copy of it for visualization
-		image = cv2.resize(image, (128, 128))
+		image = cv2.resize(image, (config.INPUT_IMAGE_HEIGHT, config.INPUT_IMAGE_WIDTH))
 		orig = image.copy()
 		# find the filename and generate the path to ground truth
 		# mask
