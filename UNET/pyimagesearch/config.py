@@ -8,10 +8,6 @@ DATASET_PATH = "../dataset_mr"
 IMAGE_DATASET_PATH = os.path.sep.join([DATASET_PATH, "train", "images"])
 MASK_DATASET_PATH = os.path.sep.join([DATASET_PATH, "train", "mask"])
 
-# define the path to the validation set
-VAL_IMAGE_DATASET_PATH = os.path.sep.join([DATASET_PATH, "val",  "images"])
-VAL_MASK_DATASET_PATH = os.path.sep.join([DATASET_PATH, "val", "mask"])
-
 # define the path to the test set
 TEST_IMAGE_DATASET_PATH = os.path.sep.join([DATASET_PATH, "test", "images"])
 TEST_MASK_DATASET_PATH = os.path.sep.join([DATASET_PATH, "test", "mask"])
@@ -32,13 +28,13 @@ NUM_LEVELS = 3
 
 # initialize the initial learning rate, number of epochs to train for, and batch size
 INIT_LR = 0.001
-NUM_EPOCHS = 600
-BATCH_SIZE = 128
+NUM_EPOCHS = 40
+BATCH_SIZE = 16
 PATIENCE = 50
 
 # define the input image dimensions
-INPUT_IMAGE_WIDTH = 128
-INPUT_IMAGE_HEIGHT = 128
+INPUT_IMAGE_WIDTH = 256
+INPUT_IMAGE_HEIGHT = 256
 
 # define the threshold to filter weak predictions
 THRESHOLD = 0.5
