@@ -14,9 +14,6 @@ from pyimagesearch.model import UNet
 def make_predictions(model, imagePath, outputDirectory):
     # set model to evaluation mode
     model.eval()
-    # if output directory does not exist, create it
-    if not os.path.exists(outputDirectory):
-        os.makedirs(outputDirectory)
 
     # turn off gradient tracking
     with torch.no_grad():
@@ -53,7 +50,7 @@ unet.load_state_dict(torch.load(config.BEST_MODEL_PATH, map_location=config.DEVI
 inputDirectory = config.TEST_IMAGE_DATASET_PATH
 outputDirectory = config.TEST_PREDICT_DATASET_PATH
 if not os.path.exists(outputDirectory):
-    raise Exception(f"Output directory {outputDirectory} does not exist")
+    os.makedirs(outputDirectory)
 
 # iterate over the images in the input directory
 for filename in os.listdir(inputDirectory):
