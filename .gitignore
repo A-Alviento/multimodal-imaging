@@ -7,6 +7,3 @@ misc/
 UNET/pyimagesearch/__pycache__/
 UNET/output
 UNET/output_backup
-
-dataset_ct/
-dataset_pt/
