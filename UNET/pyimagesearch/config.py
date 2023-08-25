@@ -2,7 +2,7 @@ import torch
 import os
 
 # base path of dataset
-DATASET_PATH = "../dataset_mr"
+DATASET_PATH = "../dataset_pt"
 
 # define the path to the training set
 IMAGE_DATASET_PATH = os.path.sep.join([DATASET_PATH, "train", "images"])
