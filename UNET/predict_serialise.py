@@ -14,6 +14,9 @@ from pyimagesearch.model import UNet
 def make_predictions(model, imagePath, outputDirectory):
     # set model to evaluation mode
     model.eval()
+    # if output directory does not exist, create it
+    if not os.path.exists(outputDirectory):
+        os.makedirs(outputDirectory)
 
     # turn off gradient tracking
     with torch.no_grad():
