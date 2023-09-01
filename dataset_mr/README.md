@@ -1,5 +1,0 @@
-- This is the dataset for all mr modalities. 
-- In `model_unet`, you will find the trained UNET model, as well as the train and test loss for the model training
-- In `test/masks` contains the ground truth for the segmentation of the GTV_Mass
-- In `test/predict_unet` contains the UNET model predictions
-- In `test/predict_unet_postprocess` contains the UNET model predictions which have undergone postprocessing to refine the mask
